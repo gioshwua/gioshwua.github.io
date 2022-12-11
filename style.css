@@ -6,7 +6,7 @@
   font-family: Poppins;
 }
 body {
-  height: 100vh;
+  height: 100%;
   width: 100%;
 }
 .Main-Con {
@@ -57,20 +57,52 @@ body {
 }
 .Sec-Con > .Stack {
   flex: 1;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .Sec-Con > .vertical {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px solid;
   color: #000000;
-  height: 45vh;
 }
 .Sec-Con > .Stack > ul > li {
   list-style: none;
 }
 .Projs {
-  padding: 20px;
-  border: 1px solid;
-  border-radius: 5px;
+  background: none;
+  border: 2px solid #000;
+  font-family: "montserrat", sans-serif;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  min-width: 200px;
+  margin: 10px;
+  cursor: pointer;
+  transition: color 0.4s linear;
+  position: relative;
+}
+
+.Projs:hover {
+  color: #fff;
+}
+.Projs::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: -1;
+  transition: transform 0.5s;
+}
+.Projs::before {
+  transform: scaleX(0);
+}
+.Projs:hover::before {
+  transform: scaleX(1);
 }
 
 @media (max-width: 600px) {
@@ -88,4 +120,10 @@ body {
   .Sec-Con > .Stack > ul > li {
     list-style: none;
   }
- 
+}
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  font-size: 12px;
+}
