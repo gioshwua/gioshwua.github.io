@@ -57,7 +57,7 @@ body {
 }
 .Sec-Con > .Stack {
   padding-left: 10px;
-  padding-right 10px;
+  padding-right: 10px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -73,25 +73,25 @@ body {
 .Sec-Con > .Stack > ul > li {
   list-style: none;
 }
-.Projs>a {
+.Projs > a {
   background: none;
   border: 2px solid #000;
   font-family: "montserrat", sans-serif;
   text-transform: uppercase;
   padding: 12px 20px;
-  min-width: 200px;
+  width: 200px;
   margin: 10px;
   cursor: pointer;
   transition: color 0.4s linear;
   position: relative;
   text-decoration: none;
- color:black;
+  color: black;
 }
 
-.Projs>a:hover {
+.Projs > a:hover {
   color: #fff;
 }
-.Projs>a::before {
+.Projs > a::before {
   content: "";
   position: absolute;
   left: 0;
@@ -102,10 +102,10 @@ body {
   z-index: -1;
   transition: transform 0.5s;
 }
-.Projs>a::before {
+.Projs > a::before {
   transform: scaleX(0);
 }
-.Projs>a:hover::before {
+.Projs > a:hover::before {
   transform: scaleX(1);
 }
 
@@ -123,6 +123,11 @@ body {
   }
   .Sec-Con > .Stack > ul > li {
     list-style: none;
+  }
+  .Projs > a {
+    font-size: 14px;
+    width: 100px;
+    padding: 5px 5px;
   }
 }
 footer {
