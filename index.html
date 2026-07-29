@@ -391,16 +391,17 @@
   }
 
   /* ---------- SKILLS — n8n-style hub & node workflow ---------- */
-  .skills-hub-wrap{display:flex; justify-content:center; margin-bottom:8px; position:relative; z-index:2;}
+  .skills-hub-wrap{display:flex; justify-content:center; margin:36px 0 40px; position:relative; z-index:2;}
   .skills-hub-node{
     background:var(--surface); border:1px solid var(--violet); border-radius:12px; padding:14px 24px;
     display:flex; align-items:center; gap:14px; position:relative;
     box-shadow:0 0 0 5px var(--violet-dim), 0 14px 30px -18px rgba(0,0,0,.6);
   }
   .skills-hub-node .hub-icon{
-    width:36px; height:36px; border-radius:9px; background:var(--violet); color:#fff;
-    display:flex; align-items:center; justify-content:center; font-size:17px; flex:0 0 auto;
+    width:36px; height:36px; border-radius:50%; background:var(--violet); color:#fff;
+    display:flex; align-items:center; justify-content:center; flex:0 0 auto;
   }
+  .skills-hub-node .hub-icon svg{width:17px; height:17px; fill:#fff;}
   .skills-hub-node b{display:block; font-family:var(--mono); font-size:13px;}
   .skills-hub-node span{display:block; font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:2px;}
   .hub-port{
@@ -409,9 +410,12 @@
   }
   @media (max-width:900px){ .hub-port{display:none;} }
 
-  .skills-canvas{position:relative; padding-top:30px;}
+  .skills-canvas{position:relative;}
   .skills-wires{position:absolute; top:0; left:0; z-index:0; pointer-events:none; display:none;}
   @media (min-width:901px){ .skills-wires{display:block;} }
+  .wire-path{fill:none; stroke:var(--violet-dim); stroke-width:2; stroke-dasharray:6 7; animation:wireDash 1s linear infinite;}
+  @keyframes wireDash{ to{ stroke-dashoffset:-26; } }
+  .wire-packet{fill:var(--violet); filter:drop-shadow(0 0 5px var(--violet));}
 
   .modules{display:flex; flex-wrap:wrap; justify-content:center; gap:18px; position:relative; z-index:2;}
   .modules .module{flex:1 1 230px; max-width:255px;}
@@ -446,19 +450,16 @@
   .service .peek{background:var(--green); color:#0A0D13;}
 
 
-  /* ---------- SERVICES — n8n-style workflow canvas ---------- */
+  /* ---------- SERVICES — n8n-style workflow canvas (stable, CSS-only connectors) ---------- */
   .services-canvas{position:relative; padding:20px 6px;}
-  .n8n-wires{position:absolute; top:0; left:0; z-index:0; pointer-events:none; display:none;}
-  @media (min-width:901px){ .n8n-wires{display:block;} }
-  .wire-path{fill:none; stroke:var(--violet-dim); stroke-width:2; stroke-dasharray:6 7; animation:wireDash 1s linear infinite;}
-  @keyframes wireDash{ to{ stroke-dashoffset:-26; } }
-  .wire-packet{fill:var(--violet); filter:drop-shadow(0 0 5px var(--violet));}
 
-  .services{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:60px 16px; position:relative; z-index:2;}
-  @media (min-width:901px){ .services{grid-template-columns:repeat(3, 1fr);} }
+  .services{display:flex; flex-direction:column; gap:16px; position:relative; z-index:2;}
+  @media (min-width:901px){ .services{flex-direction:row; align-items:flex-start; gap:0;} }
+
   .service{
     position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; will-change:transform;
   }
+  @media (min-width:901px){ .service{flex:1 1 0; min-width:0;} }
   .service:hover{border-color:var(--violet); box-shadow:0 14px 30px -18px var(--violet-dim);}
   .service .num{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-bottom:10px;}
   .service h3{font-size:15px; margin-bottom:10px;}
@@ -466,17 +467,54 @@
   .service li{font-size:13.5px; color:var(--text-dim); padding-left:16px; position:relative;}
   .service li::before{content:"›"; position:absolute; left:0; color:var(--violet);}
 
-  .port{
-    position:absolute; top:50%; width:12px; height:12px; border-radius:50%;
-    background:var(--surface); border:2px solid var(--violet); transform:translateY(-50%); z-index:3;
-    box-shadow:0 0 8px var(--violet-dim); transition:transform .2s;
+  /* connector: fixed alignment via flex row, no JS/bounding-rect math needed */
+  .wire-connector{
+    display:none; flex:0 0 auto; width:52px; margin-top:33px; position:relative; height:16px;
+    perspective:300px;
   }
-  .service:hover .port{transform:translateY(-50%) scale(1.2);}
-  .port-out{right:-6px;}
-  .port-in{left:-6px;}
-  .service:first-child .port-in{display:none;}
-  .service:last-child .port-out{display:none;}
-  @media (max-width:900px){ .port{display:none !important;} }
+  @media (min-width:901px){ .wire-connector{display:block;} }
+  .wire-seg{position:absolute; top:50%; width:20px; height:0; transform:translateY(-50%); overflow:visible;}
+  .wire-seg::before{
+    content:""; position:absolute; inset:0; border-top:2px dashed var(--violet-dim);
+  }
+  .wire-seg.left{left:0;}
+  .wire-seg.right{right:0;}
+  .wire-seg .flow-dot{
+    position:absolute; top:50%; left:-5px; width:4px; height:4px; border-radius:50%;
+    background:var(--violet); box-shadow:0 0 6px var(--violet); transform:translateY(-50%);
+    animation:segFlow 1.6s linear infinite;
+  }
+  .wire-seg.right .flow-dot{animation-delay:.8s;}
+  @keyframes segFlow{
+    0%{left:-5px; opacity:0;}
+    12%{opacity:1;}
+    88%{opacity:1;}
+    100%{left:25px; opacity:0;}
+  }
+  .wire-node{
+    position:absolute; top:50%; left:50%; width:16px; height:16px; border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 32% 28%, #c3b3ff 0%, var(--violet) 55%, #5c3fd1 100%);
+    box-shadow:
+      0 0 0 4px var(--violet-dim),
+      0 6px 14px -6px rgba(0,0,0,.65),
+      inset 0 1px 2px rgba(255,255,255,.5),
+      inset 0 -2px 3px rgba(0,0,0,.35);
+    z-index:2; transition:transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s;
+    transform-style:preserve-3d;
+  }
+  .wire-connector:hover .wire-node{
+    transform:translate(-50%,-50%) scale(1.25) rotateY(18deg) rotateX(8deg);
+    box-shadow:
+      0 0 0 5px var(--violet-dim),
+      0 10px 20px -8px rgba(0,0,0,.7),
+      inset 0 1px 2px rgba(255,255,255,.6),
+      inset 0 -2px 3px rgba(0,0,0,.4);
+  }
+  .wire-node::after{
+    content:""; position:absolute; inset:-6px; border-radius:50%; border:1px solid var(--violet-dim);
+    animation:nodeRipple 2.4s ease-out infinite;
+  }
 
   .services-flow-note{
     text-align:center; font-family:var(--mono); font-size:11px; color:var(--text-dim); opacity:.7; margin-top:18px;
@@ -943,7 +981,9 @@
 
       <div class="skills-hub-wrap">
         <div class="skills-hub-node">
-          <div class="hub-icon">⚡</div>
+          <div class="hub-icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2 L4 14 H11 L10 22 L20 9 H13 L13 2 Z" fill="currentColor"/></svg>
+        </div>
           <div>
             <b>on 'new_project'.trigger()</b>
             <span>routes to whichever module the job needs</span>
@@ -1012,10 +1052,8 @@
       <p>Three functions clients call most — usually in this order, on the same project.</p>
     </div>
     <div class="services-canvas" id="servicesCanvas">
-      <svg class="n8n-wires" id="servicesWires"></svg>
       <div class="services" id="servicesGrid">
         <div class="service"><span class="peek">start here →</span>
-          <span class="port port-in"></span><span class="port port-out"></span>
           <div class="num">fn 01</div>
           <h3>Web Development &amp; CMS</h3>
           <ul>
@@ -1025,8 +1063,14 @@
             <li>Performance optimization, technical SEO &amp; deployment</li>
           </ul>
         </div>
+
+        <div class="wire-connector">
+          <span class="wire-seg left"><span class="flow-dot"></span></span>
+          <span class="wire-node"></span>
+          <span class="wire-seg right"><span class="flow-dot"></span></span>
+        </div>
+
         <div class="service"><span class="peek">most requested</span>
-          <span class="port port-in"></span><span class="port port-out"></span>
           <div class="num">fn 02</div>
           <h3>Automation &amp; AI Integration</h3>
           <ul>
@@ -1036,8 +1080,14 @@
             <li>Automated follow-ups, notifications &amp; data routing</li>
           </ul>
         </div>
+
+        <div class="wire-connector">
+          <span class="wire-seg left"><span class="flow-dot"></span></span>
+          <span class="wire-node"></span>
+          <span class="wire-seg right"><span class="flow-dot"></span></span>
+        </div>
+
         <div class="service"><span class="peek">pairs with fn01</span>
-          <span class="port port-in"></span><span class="port port-out"></span>
           <div class="num">fn 03</div>
           <h3>CRM &amp; Marketing</h3>
           <ul>
@@ -1984,51 +2034,6 @@
       entries.forEach(e => { if(e.isIntersecting) setTimeout(draw, 350); });
     }, { threshold: 0.2 }).observe(canvas);
   })();
-
-  // ---------- n8n-style connector wires between service nodes ----------
-  (function servicesWires(){
-    const canvas = document.getElementById('servicesCanvas');
-    const svg = document.getElementById('servicesWires');
-    if(!canvas || !svg) return;
-
-    function draw(){
-      if(window.innerWidth <= 900){ svg.innerHTML = ''; return; }
-      const canvasRect = canvas.getBoundingClientRect();
-      svg.setAttribute('width', canvasRect.width);
-      svg.setAttribute('height', canvasRect.height);
-      svg.setAttribute('viewBox', `0 0 ${canvasRect.width} ${canvasRect.height}`);
-
-      const nodes = Array.from(canvas.querySelectorAll('.service'));
-      let markup = '';
-      for(let i = 0; i < nodes.length - 1; i++){
-        const outPort = nodes[i].querySelector('.port-out');
-        const inPort = nodes[i + 1].querySelector('.port-in');
-        if(!outPort || !inPort) continue;
-        const r1 = outPort.getBoundingClientRect();
-        const r2 = inPort.getBoundingClientRect();
-        const x1 = r1.left + r1.width / 2 - canvasRect.left;
-        const y1 = r1.top + r1.height / 2 - canvasRect.top;
-        const x2 = r2.left + r2.width / 2 - canvasRect.left;
-        const y2 = r2.top + r2.height / 2 - canvasRect.top;
-        const dx = Math.max(30, (x2 - x1) / 2);
-        const d = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-        markup += `<path d="${d}" class="wire-path"></path>`;
-        markup += `<circle r="4" class="wire-packet"><animateMotion dur="2s" begin="${i * 0.5}s" repeatCount="indefinite" path="${d}"></animateMotion></circle>`;
-      }
-      svg.innerHTML = markup;
-    }
-
-    draw();
-    window.addEventListener('resize', () => { clearTimeout(window._swT); window._swT = setTimeout(draw, 150); });
-    window.addEventListener('load', draw);
-    // recompute after fonts/scroll-reveal settle, since card heights can shift
-    setTimeout(draw, 300);
-    setTimeout(draw, 900);
-    new IntersectionObserver((entries) => {
-      entries.forEach(e => { if(e.isIntersecting) setTimeout(draw, 350); });
-    }, { threshold: 0.2 }).observe(canvas);
-  })();
 </script>
-
 </body>
 </html>
