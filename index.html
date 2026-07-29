@@ -367,12 +367,13 @@
   }
   .hero-focus .fdot{width:6px; height:6px; border-radius:50%; background:var(--amber); box-shadow:0 0 6px var(--amber); flex:0 0 auto; animation:pulse 1.6s infinite;}
 
+  .hero-mini-info{display:flex; gap:10px; flex-wrap:wrap; align-self:flex-start;}
+  @media (max-width:900px){ .hero-mini-info{align-self:center; justify-content:center;} }
+
   .visit-counter{
     display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10.5px;
     color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
-    align-self:flex-start;
   }
-  @media (max-width:900px){ .visit-counter{align-self:center;} }
   .visit-counter .vc-dot{width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite;}
   .visit-counter b{color:var(--violet); display:inline-block;}
   .visit-counter b.vc-pop{animation:vcPop .5s cubic-bezier(.2,.9,.3,1.3);}
@@ -390,6 +391,33 @@
     padding:20px;
   }
   .welcome-overlay.open{opacity:1; visibility:visible; transition:opacity .3s ease, visibility 0s linear 0s;}
+  .welcome-overlay.closing{
+    animation:welcomeOverlayOut .55s ease forwards;
+  }
+  @keyframes welcomeOverlayOut{
+    0%{opacity:1; backdrop-filter:blur(6px);}
+    100%{opacity:0; backdrop-filter:blur(0px);}
+  }
+  .welcome-overlay.closing .welcome-modal{
+    animation:welcomeModalOut .5s cubic-bezier(.5,0,.75,0) forwards;
+  }
+  @keyframes welcomeModalOut{
+    0%{transform:scale(1) translateY(0); opacity:1; filter:blur(0);}
+    100%{transform:scale(1.22) translateY(-14px); opacity:0; filter:blur(8px);}
+  }
+  .welcome-exit-ping{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5; pointer-events:none;
+  }
+  .welcome-exit-ping::before{
+    content:""; width:16px; height:16px; border-radius:50%; border:2px solid var(--violet); opacity:0;
+  }
+  .welcome-overlay.closing .welcome-exit-ping::before{
+    animation:welcomeExitPing .6s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  @keyframes welcomeExitPing{
+    0%{transform:scale(1); opacity:.95; border-width:3px;}
+    100%{transform:scale(70); opacity:0; border-width:.5px;}
+  }
   .welcome-modal{
     background:var(--surface); border:1px solid var(--violet); border-radius:16px; width:100%; max-width:460px;
     box-shadow:0 0 0 6px var(--violet-dim), 0 30px 70px -20px rgba(0,0,0,.7);
@@ -401,15 +429,24 @@
 
   .welcome-particles{position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
   .welcome-particle{
-    position:absolute; width:5px; height:5px; border-radius:50%; background:var(--violet);
-    box-shadow:0 0 8px var(--violet); opacity:0;
+    position:absolute; width:7px; height:7px; border-radius:50%; background:var(--violet);
+    box-shadow:0 0 12px 3px var(--violet), 0 0 26px 6px var(--violet-dim); opacity:0;
     animation:welcomeDrift linear infinite;
   }
+  .welcome-particle.small{width:4px; height:4px; box-shadow:0 0 8px 2px var(--violet), 0 0 18px 4px var(--violet-dim);}
+  .welcome-particle.big{width:10px; height:10px; box-shadow:0 0 16px 4px var(--violet), 0 0 32px 8px var(--violet-dim);}
+  .welcome-particle.amber{background:var(--amber); box-shadow:0 0 14px 3px var(--amber), 0 0 28px 6px rgba(255,176,32,.35);}
   @keyframes welcomeDrift{
-    0%{transform:translateY(0) translateX(0); opacity:0;}
-    10%{opacity:.55;}
-    90%{opacity:.55;}
-    100%{transform:translateY(-90px) translateX(20px); opacity:0;}
+    0%{transform:translate(0,0) scale(.5); opacity:0;}
+    8%{opacity:1;}
+    20%{transform:translate(10px,-32px) scale(1.2); opacity:.9;}
+    32%{opacity:.25;}
+    44%{transform:translate(-8px,-64px) scale(.9); opacity:1;}
+    56%{opacity:.35;}
+    68%{transform:translate(12px,-100px) scale(1.1); opacity:.95;}
+    80%{opacity:.4;}
+    92%{transform:translate(-10px,-135px) scale(.7); opacity:.7;}
+    100%{transform:translate(6px,-165px) scale(.5); opacity:0;}
   }
   .welcome-top{
     display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border);
@@ -938,13 +975,20 @@
 
 <div class="welcome-overlay" id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
   <div class="welcome-particles" aria-hidden="true">
-    <span class="welcome-particle" style="left:12%; top:70%; animation-duration:5.5s; animation-delay:.2s;"></span>
-    <span class="welcome-particle" style="left:22%; top:30%; animation-duration:7s; animation-delay:1.4s;"></span>
-    <span class="welcome-particle" style="left:35%; top:85%; animation-duration:6.2s; animation-delay:.6s;"></span>
-    <span class="welcome-particle" style="left:64%; top:20%; animation-duration:5.8s; animation-delay:1.9s;"></span>
-    <span class="welcome-particle" style="left:78%; top:65%; animation-duration:6.6s; animation-delay:.9s;"></span>
-    <span class="welcome-particle" style="left:88%; top:40%; animation-duration:5.2s; animation-delay:1.2s;"></span>
+    <span class="welcome-particle small" style="left:8%; top:75%; animation-duration:5.5s; animation-delay:.2s;"></span>
+    <span class="welcome-particle big" style="left:16%; top:25%; animation-duration:7.4s; animation-delay:1.4s;"></span>
+    <span class="welcome-particle amber" style="left:24%; top:55%; animation-duration:6.1s; animation-delay:.8s;"></span>
+    <span class="welcome-particle" style="left:33%; top:88%; animation-duration:6.2s; animation-delay:.6s;"></span>
+    <span class="welcome-particle small" style="left:42%; top:15%; animation-duration:5.9s; animation-delay:2.1s;"></span>
+    <span class="welcome-particle" style="left:58%; top:80%; animation-duration:6.8s; animation-delay:1.6s;"></span>
+    <span class="welcome-particle amber" style="left:66%; top:22%; animation-duration:5.8s; animation-delay:1.9s;"></span>
+    <span class="welcome-particle big" style="left:72%; top:60%; animation-duration:7.1s; animation-delay:.4s;"></span>
+    <span class="welcome-particle" style="left:80%; top:30%; animation-duration:6.6s; animation-delay:.9s;"></span>
+    <span class="welcome-particle small" style="left:87%; top:70%; animation-duration:5.2s; animation-delay:1.2s;"></span>
+    <span class="welcome-particle" style="left:92%; top:45%; animation-duration:6.4s; animation-delay:2.4s;"></span>
+    <span class="welcome-particle amber" style="left:5%; top:40%; animation-duration:7.2s; animation-delay:1.7s;"></span>
   </div>
+  <div class="welcome-exit-ping" aria-hidden="true"></div>
   <div class="welcome-modal">
     <div class="welcome-top">
       <div class="circles"><span></span><span></span><span></span></div>
@@ -1103,8 +1147,13 @@
 
         <div class="hero-focus"><span class="fdot"></span> currently focused on: AI-agent-driven CRM automations</div>
 
-        <div class="visit-counter" id="visitCounter">
-          <span class="vc-dot"></span> visits logged: <b id="visitCount">—</b>
+        <div class="hero-mini-info">
+          <div class="visit-counter" id="visitCounter">
+            <span class="vc-dot"></span> visits logged: <b id="visitCount">—</b>
+          </div>
+          <div class="visit-counter" id="locationCounter">
+            <span class="vc-dot"></span> You're browsing from: <b id="visitorCountry">detecting…</b>
+          </div>
         </div>
       </div>
     </div>
@@ -1786,6 +1835,48 @@
       });
   })();
 
+  // ---------- Visitor country detection (best-effort, IP-based, no key required) ----------
+  (function initLocationCounter(){
+    const el = document.getElementById('visitorCountry');
+    const block = document.getElementById('locationCounter');
+    if(!el || !block) return;
+
+    function animateIn(){
+      el.classList.remove('vc-pop');
+      void el.offsetWidth;
+      el.classList.add('vc-pop');
+    }
+
+    function showCountry(name){
+      if(!name){ hideBlock(); return; }
+      el.textContent = name;
+      animateIn();
+    }
+
+    function hideBlock(){
+      block.style.display = 'none';
+    }
+
+    // Try a couple of free, keyless IP-geolocation APIs in sequence, since any
+    // single one can be rate-limited or briefly unavailable. If neither works,
+    // hide the block entirely rather than showing a broken/empty state.
+    fetch('https://ipapi.co/json/')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        if(data && data.country_name) showCountry(data.country_name);
+        else return Promise.reject();
+      })
+      .catch(() => {
+        fetch('https://ipwho.is/')
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(data => {
+            if(data && data.success !== false && data.country) showCountry(data.country);
+            else return Promise.reject();
+          })
+          .catch(hideBlock);
+      });
+  })();
+
   // ---------- GitHub widget fallback on load error ----------
   document.querySelectorAll('.github-card:not(.gh-achievements-card)').forEach(card => {
     const img = card.querySelector('img');
@@ -2264,11 +2355,16 @@
     }
 
     function closeModal(remember){
-      overlay.classList.remove('open');
-      document.documentElement.style.overflow = '';
-      if(remember){
-        try{ localStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
-      }
+      if(overlay.classList.contains('closing')) return;
+      overlay.classList.add('closing');
+      const EXIT_DURATION = 560;
+      setTimeout(() => {
+        overlay.classList.remove('open', 'closing');
+        document.documentElement.style.overflow = '';
+        if(remember){
+          try{ localStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
+        }
+      }, EXIT_DURATION);
     }
 
     if(!alreadySeen){
@@ -2285,7 +2381,7 @@
     choiceClient.addEventListener('click', () => {
       closeModal(true);
       const target = document.querySelector(choiceClient.dataset.target);
-      if(target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 350);
+      if(target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 250);
     });
   })();
 </script>
