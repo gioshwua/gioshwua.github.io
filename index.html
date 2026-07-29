@@ -57,7 +57,7 @@
     background-size:34px 34px; opacity:.35; will-change:transform;
   }
 
-  .cursor-dot, .cursor-ring{position:fixed; top:0; left:0; pointer-events:none; z-index:9999; opacity:0; transform:translate(-50%,-50%);}
+  .cursor-dot, .cursor-ring{position:fixed; top:0; left:0; pointer-events:none; z-index:10050; opacity:0; transform:translate(-50%,-50%);}
   .cursor-dot{width:6px; height:6px; border-radius:50%; background:var(--violet); transition:opacity .2s;}
   .cursor-ring{width:30px; height:30px; border-radius:50%; border:1.5px solid var(--violet); transition:width .2s, height .2s, opacity .2s, background .2s;}
   .cursor-ring.hovered{width:52px; height:52px; background:var(--violet-dim);}
@@ -374,7 +374,110 @@
   }
   @media (max-width:900px){ .visit-counter{align-self:center;} }
   .visit-counter .vc-dot{width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite;}
-  .visit-counter b{color:var(--violet);}
+  .visit-counter b{color:var(--violet); display:inline-block;}
+  .visit-counter b.vc-pop{animation:vcPop .5s cubic-bezier(.2,.9,.3,1.3);}
+  @keyframes vcPop{
+    0%{transform:scale(.4); opacity:0;}
+    55%{transform:scale(1.25); opacity:1;}
+    100%{transform:scale(1);}
+  }
+
+  /* ---------- WELCOME MODAL (n8n-style workflow popup) ---------- */
+  .welcome-overlay{
+    position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,7,12,.72); backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden; transition:opacity .3s ease, visibility 0s linear .3s;
+    padding:20px;
+  }
+  .welcome-overlay.open{opacity:1; visibility:visible; transition:opacity .3s ease, visibility 0s linear 0s;}
+  .welcome-modal{
+    background:var(--surface); border:1px solid var(--violet); border-radius:16px; width:100%; max-width:460px;
+    box-shadow:0 0 0 6px var(--violet-dim), 0 30px 70px -20px rgba(0,0,0,.7);
+    transform:scale(.92) translateY(14px); opacity:0; transition:transform .35s cubic-bezier(.2,.8,.3,1.15), opacity .3s ease;
+    overflow:hidden; max-height:90vh; display:flex; flex-direction:column;
+    position:relative; z-index:1;
+  }
+  .welcome-overlay.open .welcome-modal{transform:scale(1) translateY(0); opacity:1;}
+
+  .welcome-particles{position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  .welcome-particle{
+    position:absolute; width:5px; height:5px; border-radius:50%; background:var(--violet);
+    box-shadow:0 0 8px var(--violet); opacity:0;
+    animation:welcomeDrift linear infinite;
+  }
+  @keyframes welcomeDrift{
+    0%{transform:translateY(0) translateX(0); opacity:0;}
+    10%{opacity:.55;}
+    90%{opacity:.55;}
+    100%{transform:translateY(-90px) translateX(20px); opacity:0;}
+  }
+  .welcome-top{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border);
+    font-family:var(--mono); font-size:11px; color:var(--text-dim); flex:0 0 auto;
+  }
+  .welcome-top .circles{display:flex; gap:6px;}
+  .welcome-top .circles span{width:9px; height:9px; border-radius:50%; background:var(--border);}
+  .welcome-top .wt-label{flex:1;}
+  .welcome-close{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim); border-radius:6px;
+    width:22px; height:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;
+    transition:border-color .2s, color .2s;
+  }
+  .welcome-close:hover{border-color:var(--violet); color:var(--violet);}
+  .welcome-body{padding:22px 24px 24px; overflow-y:auto;}
+
+  .welcome-flow{display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:20px; flex-wrap:nowrap;}
+  .wf-mini-node{
+    font-family:var(--mono); font-size:9.5px; color:var(--text-dim); border:1px solid var(--border); background:var(--surface-2);
+    border-radius:20px; padding:5px 9px; display:flex; align-items:center; gap:5px; white-space:nowrap;
+    transition:border-color .3s, color .3s;
+  }
+  .wf-mini-dot{width:5px; height:5px; border-radius:50%; background:var(--border); transition:background .3s, box-shadow .3s;}
+  .wf-mini-node.active{border-color:var(--violet); color:var(--violet);}
+  .wf-mini-node.active .wf-mini-dot{background:var(--violet); box-shadow:0 0 6px var(--violet);}
+  .wf-mini-node.done{border-color:var(--green); color:var(--green);}
+  .wf-mini-node.done .wf-mini-dot{background:var(--green); box-shadow:0 0 6px var(--green);}
+  .wf-mini-line{
+    width:20px; height:0; border-top:2px dashed var(--border); flex:0 0 auto; position:relative; transition:border-color .3s;
+    overflow:visible;
+  }
+  .wf-mini-line.active{border-top-color:var(--violet-dim);}
+  .wf-mini-line::after{
+    content:""; position:absolute; top:50%; left:0; width:4px; height:4px; border-radius:50%;
+    background:var(--violet); box-shadow:0 0 6px var(--violet); transform:translate(-50%,-50%); opacity:0;
+  }
+  .wf-mini-line.active::after{animation:wfMiniFlow 1s linear infinite;}
+  @keyframes wfMiniFlow{
+    0%{left:0%; opacity:0;}
+    15%{opacity:1;}
+    85%{opacity:1;}
+    100%{left:100%; opacity:0;}
+  }
+
+  .welcome-modal h2{font-size:19px; margin-bottom:10px; text-align:center;}
+  .welcome-text{
+    font-size:13.5px; color:var(--text-dim); line-height:1.65; text-align:center; min-height:66px;
+  }
+  .welcome-text .wt-cursor{display:inline-block; width:6px; height:13px; background:var(--violet); vertical-align:middle; margin-left:2px; animation:blink 1s steps(1) infinite;}
+
+  .welcome-branch{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
+  .welcome-choice{
+    flex:1 1 0; min-width:150px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:14px; text-align:left; cursor:pointer; display:flex; flex-direction:column; gap:4px;
+    transition:border-color .2s, transform .2s, box-shadow .2s;
+  }
+  .welcome-choice:hover{border-color:var(--violet); transform:translateY(-3px); box-shadow:0 12px 24px -14px var(--violet-dim);}
+  .welcome-choice:active{transform:translateY(0) scale(.98);}
+  .wc-label{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text);}
+  .wc-sub{font-family:var(--mono); font-size:10px; color:var(--text-dim);}
+
+  .welcome-footnote{
+    text-align:center; font-family:var(--mono); font-size:10px; color:var(--text-dim); opacity:.6; margin-top:16px;
+  }
+  @media (max-width:480px){
+    .welcome-flow{flex-wrap:wrap; row-gap:6px;}
+    .wf-mini-line{display:none;}
+  }
 
   /* ---------- SECTION HEADERS ---------- */
   .sec-head{text-align:center; margin-bottom:44px;}
@@ -454,7 +557,7 @@
   .services-canvas{position:relative; padding:20px 6px;}
 
   .services{display:flex; flex-direction:column; gap:16px; position:relative; z-index:2;}
-  @media (min-width:901px){ .services{flex-direction:row; align-items:flex-start; gap:0;} }
+  @media (min-width:901px){ .services{flex-direction:row; align-items:stretch; gap:0;} }
 
   .service{
     position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; will-change:transform;
@@ -833,6 +936,49 @@
 </head>
 <body>
 
+<div class="welcome-overlay" id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcome-particles" aria-hidden="true">
+    <span class="welcome-particle" style="left:12%; top:70%; animation-duration:5.5s; animation-delay:.2s;"></span>
+    <span class="welcome-particle" style="left:22%; top:30%; animation-duration:7s; animation-delay:1.4s;"></span>
+    <span class="welcome-particle" style="left:35%; top:85%; animation-duration:6.2s; animation-delay:.6s;"></span>
+    <span class="welcome-particle" style="left:64%; top:20%; animation-duration:5.8s; animation-delay:1.9s;"></span>
+    <span class="welcome-particle" style="left:78%; top:65%; animation-duration:6.6s; animation-delay:.9s;"></span>
+    <span class="welcome-particle" style="left:88%; top:40%; animation-duration:5.2s; animation-delay:1.2s;"></span>
+  </div>
+  <div class="welcome-modal">
+    <div class="welcome-top">
+      <div class="circles"><span></span><span></span><span></span></div>
+      <span class="wt-label">on 'visitor.arrived'.trigger()</span>
+      <button class="welcome-close" id="welcomeClose" type="button" aria-label="Close welcome dialog">✕</button>
+    </div>
+    <div class="welcome-body">
+      <div class="welcome-flow">
+        <div class="wf-mini-node" id="wfNode1"><span class="wf-mini-dot"></span>trigger</div>
+        <span class="wf-mini-line" id="wfLine1"></span>
+        <div class="wf-mini-node" id="wfNode2"><span class="wf-mini-dot"></span>identify visitor</div>
+        <span class="wf-mini-line" id="wfLine2"></span>
+        <div class="wf-mini-node" id="wfNode3"><span class="wf-mini-dot"></span>render welcome</div>
+      </div>
+
+      <h2 id="welcomeTitle">Hey, welcome. I'm Kenneth Reaño.</h2>
+      <p class="welcome-text" id="welcomeText"></p>
+
+      <div class="welcome-branch">
+        <button class="welcome-choice" id="choiceClient" type="button" data-target="#services">
+          <span class="wc-label">I'm a potential client</span>
+          <span class="wc-sub">take me to the services &amp; work</span>
+        </button>
+        <button class="welcome-choice" id="choiceExplore" type="button">
+          <span class="wc-label">Just exploring</span>
+          <span class="wc-sub">let me poke around &amp; fact-check</span>
+        </button>
+      </div>
+
+      <div class="welcome-footnote">// this popup won't run again on this browser</div>
+    </div>
+  </div>
+</div>
+
 <svg width="0" height="0" style="position:absolute">
   <filter id="sketchFilter">
     <feColorMatrix type="saturate" values="0"/>
@@ -843,6 +989,7 @@
     </feComponentTransfer>
   </filter>
 </svg>
+
 
 <div id="bgGrid"></div>
 <div class="cursor-ring" id="cursorRing"></div>
@@ -1061,6 +1208,8 @@
             <li>Shopify &amp; WooCommerce store builds and custom flows</li>
             <li>Booking systems, landing pages, full e-commerce builds</li>
             <li>Performance optimization, technical SEO &amp; deployment</li>
+            <li>Responsive, mobile-first builds tested across devices before handoff</li>
+            <li>Ongoing plugin, security &amp; uptime maintenance after launch</li>
           </ul>
         </div>
 
@@ -1078,6 +1227,8 @@
             <li>AI agent integration (OpenAI, Claude) for lead handling &amp; content pipelines</li>
             <li>Webhook setup, API connections, multi-platform integrations</li>
             <li>Automated follow-ups, notifications &amp; data routing</li>
+            <li>Custom AI agents that qualify, tag, and route leads with zero manual triage</li>
+            <li>Error-handling &amp; monitoring built into every workflow, not bolted on after</li>
           </ul>
         </div>
 
@@ -1094,6 +1245,8 @@
             <li>Zoho CRM, GoHighLevel &amp; HubSpot setup and customization</li>
             <li>Pipeline building, lead management, workflow automation</li>
             <li>Email marketing via Mailchimp &amp; campaign automation</li>
+            <li>Custom fields, stages &amp; dashboards mapped to your actual sales process</li>
+            <li>Contact segmentation &amp; nurture sequences that run without you touching them</li>
           </ul>
         </div>
       </div>
@@ -1592,21 +1745,44 @@
     uptimeEl.textContent = `uptime ${m}:${s}`;
   }, 1000);
 
-  // ---------- Visit counter (best-effort real counter, falls back to local) ----------
+  // ---------- Visit counter (every real visit increments a shared global count, with pop animation) ----------
   (function initVisitCounter(){
     const el = document.getElementById('visitCount');
+
+    function animateIn(){
+      el.classList.remove('vc-pop');
+      // force reflow so the animation can restart
+      void el.offsetWidth;
+      el.classList.add('vc-pop');
+    }
+
+    function showCount(n, suffix){
+      el.textContent = n.toLocaleString() + (suffix || '');
+      animateIn();
+    }
+
     const NAMESPACE = 'kenneth-reano-portfolio';
     const KEY = 'homepage';
-    fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`)
+
+    // Abacus: a maintained hit-counter API (countapi.xyz is defunct) — every page
+    // load is a real "hit" against a single shared global counter, not a per-browser one.
+    fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/${KEY}`)
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { el.textContent = data.value.toLocaleString(); })
+      .then(data => showCount(data.value))
       .catch(() => {
-        try{
-          let n = parseInt(localStorage.getItem('kr_visit_count') || '0', 10);
-          n += 1;
-          localStorage.setItem('kr_visit_count', String(n));
-          el.textContent = n.toLocaleString() + ' (local)';
-        }catch(e){ el.textContent = '—'; }
+        // fallback: a second maintained counter service, in case the first is unreachable
+        fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`)
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(data => showCount(data.count ?? data.value))
+          .catch(() => {
+            // last resort: local-only tally so the widget still shows *something* live
+            try{
+              let n = parseInt(localStorage.getItem('kr_visit_count') || '0', 10);
+              n += 1;
+              localStorage.setItem('kr_visit_count', String(n));
+              showCount(n, ' (local)');
+            }catch(e){ el.textContent = '—'; }
+          });
       });
   })();
 
@@ -1690,6 +1866,8 @@
   attachHoverSound('.flow-chip', 700, 25);
   attachHoverSound('.tag', 780, 8);
   attachHoverSound('.hero-stats .stat', 620, 30);
+  attachHoverSound('.welcome-choice', 700, 60);
+  attachHoverSound('.welcome-close', 500, 0);
 
   // ---------- Scroll reveal ----------
   const revealEls = document.querySelectorAll('.module, .job, .proj, .service, .testimonial, .cert');
@@ -2033,6 +2211,82 @@
     new IntersectionObserver((entries) => {
       entries.forEach(e => { if(e.isIntersecting) setTimeout(draw, 350); });
     }, { threshold: 0.2 }).observe(canvas);
+  })();
+
+  // ---------- Welcome modal (n8n-style workflow popup) ----------
+  (function welcomeModal(){
+    const overlay = document.getElementById('welcomeOverlay');
+    const closeBtn = document.getElementById('welcomeClose');
+    const textEl = document.getElementById('welcomeText');
+    const node1 = document.getElementById('wfNode1');
+    const node2 = document.getElementById('wfNode2');
+    const node3 = document.getElementById('wfNode3');
+    const line1 = document.getElementById('wfLine1');
+    const line2 = document.getElementById('wfLine2');
+    const choiceClient = document.getElementById('choiceClient');
+    const choiceExplore = document.getElementById('choiceExplore');
+    if(!overlay) return;
+
+    const STORAGE_KEY = 'kr_welcome_dismissed';
+    const message = "Whether you're a potential client scoping out the work, or just here to explore and fact-check the portfolio, feel free to look around. Everything on this page is real, live, and wired the way I'd wire it for a client.";
+
+    let alreadySeen = false;
+    try{ alreadySeen = localStorage.getItem(STORAGE_KEY) === '1'; }catch(e){}
+
+    function typeText(){
+      let i = 0;
+      textEl.innerHTML = '<span class="wt-cursor"></span>';
+      const speed = 14;
+      function tick(){
+        if(i <= message.length){
+          textEl.innerHTML = message.slice(0, i) + '<span class="wt-cursor"></span>';
+          i++;
+          setTimeout(tick, speed);
+        } else {
+          textEl.innerHTML = message;
+        }
+      }
+      tick();
+    }
+
+    function runSequence(){
+      setTimeout(() => node1.classList.add('active'), 150);
+      setTimeout(() => line1.classList.add('active'), 450);
+      setTimeout(() => node2.classList.add('active'), 650);
+      setTimeout(() => line2.classList.add('active'), 950);
+      setTimeout(() => { node3.classList.add('done'); typeText(); }, 1150);
+    }
+
+    function openModal(){
+      overlay.classList.add('open');
+      document.documentElement.style.overflow = 'hidden';
+      runSequence();
+    }
+
+    function closeModal(remember){
+      overlay.classList.remove('open');
+      document.documentElement.style.overflow = '';
+      if(remember){
+        try{ localStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
+      }
+    }
+
+    if(!alreadySeen){
+      setTimeout(openModal, 400);
+    }
+
+    closeBtn.addEventListener('click', () => closeModal(true));
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(true); });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(true);
+    });
+
+    choiceExplore.addEventListener('click', () => closeModal(true));
+    choiceClient.addEventListener('click', () => {
+      closeModal(true);
+      const target = document.querySelector(choiceClient.dataset.target);
+      if(target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 350);
+    });
   })();
 </script>
 </body>
